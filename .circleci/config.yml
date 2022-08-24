@@ -12,8 +12,7 @@ jobs:
       # Primary container image where all steps run.
       - image: cimg/base:stable
       # Secondary container image on common network as seen at https://circleci.com/docs/using-docker
-      - image: cimg/mariadb:10.6
-        command: [mongod, --smallfiles]
+      - image: cimg/mariadb:10.6.4
     # Add steps to the job
     # See: https://circleci.com/docs/2.0/configuration-reference/#steps
     steps:
