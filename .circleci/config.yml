@@ -5,7 +5,7 @@ version: 2.1
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
-  probe-container-under-test:
+  test-docker-env:
     # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
     # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
     docker:
@@ -22,9 +22,38 @@ jobs:
       - run: sleep 5 && nc -vz localhost 3306
       - run: echo "Done!"
 
+  first-tests:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - run: sleep 10
+      - run: echo "Done!"
+  second-tests:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - run: sleep 10
+      - run: echo "Done!"
+  third-tests:
+    docker:
+      - image: cimg/base:stable
+      - image: cimg/mariadb:10.6.4
+    steps:
+      - run: timeout 30s sh -c 'until nc -vz localhost 3306; do sleep 0.1; done' 
+      - run: echo "Done!"
+
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
   default-workflow:
     jobs:
-      - probe-container-under-test
+      - test-docker-env
+      - first-tests:
+          requires:
+            - test-docker-env
+      - second-tests:
+          requires:
+            - test-docker-env
+      - third-tests:
+          requires:
+            - test-docker-env
